@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[1]:
 
 
 import pandas as pd
@@ -16,8 +15,6 @@ from surprise.model_selection import cross_validate
 sns.set_style("darkgrid")
 
 
-# In[ ]:
-
 
 # Skip date
 df1 = pd.read_csv('../input/combined_data_1.txt', header = None, names = ['Cust_Id', 'Rating'], usecols = [0,1])
@@ -28,8 +25,6 @@ print('Dataset 1 shape: {}'.format(df1.shape))
 print('-Dataset examples-')
 print(df1.iloc[::5000000, :])
 
-
-# In[2]:
 
 
 #df2 = pd.read_csv('../input/combined_data_2.txt', header = None, names = ['Cust_Id', 'Rating'], usecols = [0,1])
@@ -46,9 +41,6 @@ print(df1.iloc[::5000000, :])
 #print('Dataset 4 shape: {}'.format(df4.shape))
 
 
-# In[3]:
-
-
 # load less data for speed
 
 df = df1
@@ -61,8 +53,6 @@ print('Full dataset shape: {}'.format(df.shape))
 print('-Dataset examples-')
 print(df.iloc[::5000000, :])
 
-
-# In[4]:
 
 
 p = df.groupby('Rating')['Rating'].agg(['count'])
@@ -82,9 +72,6 @@ plt.axis('off')
 
 for i in range(1,6):
     ax.text(p.iloc[i-1][0]/4, i-1, 'Rating {}: {:.0f}%'.format(i, p.iloc[i-1][0]*100 / p.sum()[0]), color = 'white', weight = 'bold')
-
-
-# In[5]:
 
 
 df_nan = pd.DataFrame(pd.isnull(df.Rating))
@@ -109,8 +96,6 @@ print('Movie numpy: {}'.format(movie_np))
 print('Length: {}'.format(len(movie_np)))
 
 
-# In[6]:
-
 
 # remove those Movie ID rows
 df = df[pd.notnull(df['Rating'])]
@@ -119,9 +104,6 @@ df['Movie_Id'] = movie_np.astype(int)
 df['Cust_Id'] = df['Cust_Id'].astype(int)
 print('-Dataset examples-')
 print(df.iloc[::5000000, :])
-
-
-# In[7]:
 
 
 f = ['count','mean']
@@ -141,9 +123,6 @@ drop_cust_list = df_cust_summary[df_cust_summary['count'] < cust_benchmark].inde
 print('Customer minimum times of review: {}'.format(cust_benchmark))
 
 
-# In[8]:
-
-
 print('Original Shape: {}'.format(df.shape))
 df = df[~df['Movie_Id'].isin(drop_movie_list)]
 df = df[~df['Cust_Id'].isin(drop_cust_list)]
@@ -151,8 +130,6 @@ print('After Trim Shape: {}'.format(df.shape))
 print('-Data Examples-')
 print(df.iloc[::5000000, :])
 
-
-# In[9]:
 
 
 df_p = pd.pivot_table(df,values='Rating',index='Cust_Id',columns='Movie_Id')
@@ -171,15 +148,10 @@ print(df_p.shape)
 #df_p = df_p.replace(0, np.NaN)
 
 
-# In[10]:
-
-
 df_title = pd.read_csv('../input/movie_titles.csv', encoding = "ISO-8859-1", header = None, names = ['Movie_Id', 'Year', 'Name'])
 df_title.set_index('Movie_Id', inplace = True)
 print (df_title.head(10))
 
-
-# In[11]:
 
 
 reader = Reader()
@@ -192,16 +164,12 @@ svd = SVD()
 cross_validate(svd, data, measures=['RMSE', 'MAE'])
 
 
-# In[12]:
-
 
 df_785314 = df[(df['Cust_Id'] == 785314) & (df['Rating'] == 5)]
 df_785314 = df_785314.set_index('Movie_Id')
 df_785314 = df_785314.join(df_title)['Name']
 print(df_785314)
 
-
-# In[13]:
 
 
 user_785314 = df_title.copy()
@@ -222,9 +190,6 @@ user_785314 = user_785314.sort_values('Estimate_Score', ascending=False)
 print(user_785314.head(10))
 
 
-# In[14]:
-
-
 def recommend(movie_title, min_count):
     print("For movie ({})".format(movie_title))
     print("- Top 10 movies recommended based on Pearsons'R correlation - ")
@@ -239,19 +204,10 @@ def recommend(movie_title, min_count):
     print(corr_target[corr_target['count']>min_count][:10].to_string(index=False))
 
 
-# In[15]:
-
 
 recommend("What the #$*! Do We Know!?", 0)
-
-
-# In[16]:
-
-
 recommend("X2: X-Men United", 0)
 
-
-# In[ ]:
 
 
 
